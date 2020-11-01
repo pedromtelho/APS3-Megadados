@@ -5,6 +5,14 @@ from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
 
 
 # pylint: disable=too-few-public-methods
+
+class UpdateUser(BaseModel):
+    old_username: str
+    new_username: str
+
+class User(BaseModel):
+    username: str
+
 class Task(BaseModel):
     description: Optional[str] = Field(
         'no description',
