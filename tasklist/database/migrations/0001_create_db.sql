@@ -4,3 +4,9 @@ CREATE TABLE tasks (
     description NVARCHAR(1024),
     completed BOOLEAN
 );
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE users(
+    id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    username VARCHAR(300) NOT NULL
+);

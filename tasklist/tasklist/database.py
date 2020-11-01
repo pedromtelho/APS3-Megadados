@@ -10,12 +10,63 @@ from fastapi import Depends
 
 from utils.utils import get_config_filename, get_app_secrets_filename
 
-from .models import Task
+from .models import Task, User
 
 
 class DBSession:
     def __init__(self, connection: conn.MySQLConnection):
         self.connection = connection
+
+
+    def get_users(self):
+        with self.connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM users')
+            db_results = cursor.fetchall()
+
+        return {
+            id: User(
+                username=username
+            )
+            for id, username in db_results
+        }
+
+    def create_user(self, username: str):
+        if self.__user_exists(username):
+            raise KeyError()
+
+        with self.connection.cursor() as cursor:
+            cursor.execute('INSERT INTO users (username) VALUES (%s)',(str(username),) )
+
+        self.connection.commit()
+
+    def edit_user(self, old_username: str, new_username: str):
+        if self.__user_exists(old_username):
+            with self.connection.cursor() as cursor:
+                cursor.execute('UPDATE users SET username=(%s) WHERE username=(%s)',(str(new_username), str(old_username)) )
+            self.connection.commit()
+        else:
+            raise KeyError()
+        
+
+
+    def remove_user(self, username: str):
+        if not self.__user_exists(username):
+            raise KeyError()
+
+        with self.connection.cursor() as cursor:
+            cursor.execute('DELETE FROM users where username=%s',(str(username),) )
+
+        self.connection.commit()
+
+    def __user_exists(self, username: str):
+        with self.connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM users WHERE username=(%s)',(str(username),))
+            results = cursor.fetchone()
+            if(results != None):
+                found = True
+            else:
+                found = False
+        return found
 
     def read_tasks(self, completed: bool = None):
         query = 'SELECT BIN_TO_UUID(uuid), description, completed FROM tasks'
