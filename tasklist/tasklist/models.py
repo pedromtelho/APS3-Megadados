@@ -3,7 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
 
-
 # pylint: disable=too-few-public-methods
 
 class UpdateUser(BaseModel):
@@ -23,11 +22,16 @@ class Task(BaseModel):
         False,
         title='Shows whether the task was completed',
     )
+    id_owner: Optional[int] = Field(
+        'user id',
+        title="Task owner"
+    )
 
     class Config:
         schema_extra = {
             'example': {
                 'description': 'Buy baby diapers',
                 'completed': False,
+                'id_owner': 1
             }
         }

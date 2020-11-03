@@ -17,7 +17,6 @@ class DBSession:
     def __init__(self, connection: conn.MySQLConnection):
         self.connection = connection
 
-
     def get_users(self):
         with self.connection.cursor() as cursor:
             cursor.execute('SELECT * FROM users')
@@ -46,8 +45,6 @@ class DBSession:
             self.connection.commit()
         else:
             raise KeyError()
-        
-
 
     def remove_user(self, username: str):
         if not self.__user_exists(username):
@@ -69,7 +66,7 @@ class DBSession:
         return found
 
     def read_tasks(self, completed: bool = None):
-        query = 'SELECT BIN_TO_UUID(uuid), description, completed FROM tasks'
+        query = 'SELECT BIN_TO_UUID(uuid), description, completed, id_owner FROM tasks'
         if completed is not None:
             query += ' WHERE completed = '
             if completed:
@@ -85,8 +82,9 @@ class DBSession:
             uuid_: Task(
                 description=field_description,
                 completed=bool(field_completed),
+                id_owner=field_id_owner
             )
-            for uuid_, field_description, field_completed in db_results
+            for uuid_, field_description, field_completed, field_id_owner in db_results
         }
 
     def create_task(self, item: Task):
@@ -94,8 +92,8 @@ class DBSession:
 
         with self.connection.cursor() as cursor:
             cursor.execute(
-                'INSERT INTO tasks VALUES (UUID_TO_BIN(%s), %s, %s)',
-                (str(uuid_), item.description, item.completed),
+                'INSERT INTO tasks VALUES (UUID_TO_BIN(%s), %s, %s, %d)',
+                (str(uuid_), item.description, item.completed, item.id_owner),
             )
         self.connection.commit()
 
@@ -108,7 +106,7 @@ class DBSession:
         with self.connection.cursor() as cursor:
             cursor.execute(
                 '''
-                SELECT description, completed
+                SELECT description, completed, id_owner
                 FROM tasks
                 WHERE uuid = UUID_TO_BIN(%s)
                 ''',
@@ -116,7 +114,7 @@ class DBSession:
             )
             result = cursor.fetchone()
 
-        return Task(description=result[0], completed=bool(result[1]))
+        return Task(description=result[0], completed=bool(result[1]), id_owner=(result[2]))
 
     def replace_task(self, uuid_, item):
         if not self.__task_exists(uuid_):
