@@ -1,12 +1,14 @@
-DROP TABLE IF EXISTS tasks;
-CREATE TABLE tasks (
-    uuid BINARY(16) PRIMARY KEY,
-    description NVARCHAR(1024),
-    completed BOOLEAN
-);
-
 DROP TABLE IF EXISTS users;
 CREATE TABLE users(
     id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     username VARCHAR(300) NOT NULL
+);
+
+DROP TABLE IF EXISTS tasks;
+CREATE TABLE tasks (
+    uuid BINARY(16) PRIMARY KEY,
+    description NVARCHAR(1024),
+    completed BOOLEAN,
+    id_owner INT,
+    FOREIGN KEY (id_owner) REFERENCES users(id) ON DELETE CASCADE
 );
