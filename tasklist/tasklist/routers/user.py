@@ -5,7 +5,7 @@ from typing import Dict
 from fastapi import APIRouter, HTTPException, Depends
 
 from ..database import DBSession, get_db
-from ..models import Task, UpdateUser
+from ..models import Task, User, UpdateUser
 
 router = APIRouter()
 
@@ -22,9 +22,9 @@ async def get_users(db: DBSession = Depends(get_db)):
     summary='Creates a new user',
     description='Creates a new user'
 )
-async def create_user(name: str, db: DBSession = Depends(get_db)):
+async def create_user(user: User, db: DBSession = Depends(get_db)):
     try:
-        return db.create_user(name)
+        return db.create_user(user.username)
     except KeyError as exception:
         raise HTTPException(
             status_code=404,
