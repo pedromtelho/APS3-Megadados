@@ -61,7 +61,9 @@ def test_create_user_and_read_user():
     assert response.status_code == 200
     assert response.json() == read_user()
 
-def create_user_and_edit_user():
+def test_create_user_and_edit_user():
+    setup_database()
+
     #Create user
     response = client.post('/users', json={"username": "testName"})
     assert response.status_code == 200
@@ -73,7 +75,7 @@ def create_user_and_edit_user():
     #Checks whether the user has actually been changed
     response = client.get('/users')
     assert response.status_code == 200
-    assert response.json() == {"1": {"username": "newtestName"}}
+    assert response.json() == {"1": {"username": "newTestName"}}
 
 def test_create_task_with_no_user_associated():
     setup_database()
@@ -136,12 +138,7 @@ def test_create_and_read_some_tasks():
             'description': 'no description',
             'completed': True,
             "id_owner": 1
-        },
-        {
-            'description': 'no description',
-            'completed': False,
-            "id_owner": 1
-        },
+        }
     ]
 
     # Insert some tasks and check that all succeeded.
@@ -178,8 +175,6 @@ def test_create_and_read_some_tasks():
     response = client.get('/task')
     assert response.status_code == 200
     assert response.json() == {}
-
-
 
 def test_substitute_task():
     setup_database()
