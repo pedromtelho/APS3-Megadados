@@ -30,7 +30,7 @@ class DBSession:
         }
 
     def create_user(self, username: str):
-        if self.__user_exists(username):
+        if self.__user_exists_by_username(username):
             raise KeyError()
 
         with self.connection.cursor() as cursor:
@@ -39,7 +39,7 @@ class DBSession:
         self.connection.commit()
 
     def edit_user(self, old_username: str, new_username: str):
-        if self.__user_exists(old_username):
+        if self.__user_exists_by_username(old_username):
             with self.connection.cursor() as cursor:
                 cursor.execute('UPDATE users SET username=(%s) WHERE username=(%s)',(str(new_username), str(old_username)) )
             self.connection.commit()
@@ -47,7 +47,7 @@ class DBSession:
             raise KeyError()
 
     def remove_user(self, username: str):
-        if not self.__user_exists(username):
+        if not self.__user_exists_by_username(username):
             raise KeyError()
 
         with self.connection.cursor() as cursor:
@@ -55,7 +55,7 @@ class DBSession:
 
         self.connection.commit()
 
-    def __user_exists(self, username: str):
+    def __user_exists_by_username(self, username: str):
         with self.connection.cursor() as cursor:
             cursor.execute('SELECT * FROM users WHERE username=(%s)',(str(username),))
             results = cursor.fetchone()
@@ -64,6 +64,19 @@ class DBSession:
             else:
                 found = False
         return found
+
+    def user_exists_by_id(self, id: str):
+        with self.connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM users WHERE id=(%s)',(str(id),))
+            results = cursor.fetchone()
+            if(results != None):
+                found = True
+            else:
+                found = False
+        return found
+
+         
+        
 
     def read_tasks(self, completed: bool = None):
         query = 'SELECT BIN_TO_UUID(uuid), description, completed, id_owner FROM tasks'
@@ -92,7 +105,7 @@ class DBSession:
 
         with self.connection.cursor() as cursor:
             cursor.execute(
-                'INSERT INTO tasks VALUES (UUID_TO_BIN(%s), %s, %s, %d)',
+                'INSERT INTO tasks VALUES (UUID_TO_BIN(%s), %s, %s, %s)',
                 (str(uuid_), item.description, item.completed, item.id_owner),
             )
         self.connection.commit()

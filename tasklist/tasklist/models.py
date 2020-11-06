@@ -22,8 +22,7 @@ class Task(BaseModel):
         False,
         title='Shows whether the task was completed',
     )
-    id_owner: Optional[int] = Field(
-        'user id',
+    id_owner: int = Field(
         title="Task owner"
     )
 

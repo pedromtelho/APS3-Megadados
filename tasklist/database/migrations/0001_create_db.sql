@@ -6,7 +6,6 @@ CREATE TABLE users(
     username VARCHAR(300) NOT NULL
 );
 
-
 CREATE TABLE tasks (
     uuid BINARY(16) PRIMARY KEY,
     description NVARCHAR(1024),
