@@ -71,11 +71,22 @@ def create_user_and_edit_user():
     assert response.status_code == 200
 
     #Checks whether the user has actually been changed
-    response = response = client.get('/users')
+    response = client.get('/users')
     assert response.status_code == 200
     assert response.json() == {"1": {"username": "newtestName"}}
 
+def test_create_task_with_no_user_associated():
+    setup_database()
 
+    response = client.post('/task', json={"description": "testDescription", "completed": False})
+    assert response.status_code == 422
+
+def test_create_task_with_invalid_user_associated():
+    setup_database()
+
+    response = client.post('/task', json={"description": "testDescription", "completed": False, "id_owner": 50})
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid user id"}
 
 def test_create_and_read_some_tasks():
     setup_database()
@@ -167,6 +178,7 @@ def test_create_and_read_some_tasks():
     response = client.get('/task')
     assert response.status_code == 200
     assert response.json() == {}
+
 
 
 def test_substitute_task():

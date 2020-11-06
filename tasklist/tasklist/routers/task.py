@@ -28,7 +28,13 @@ async def read_tasks(completed: bool = None, db: DBSession = Depends(get_db)):
     response_model=uuid.UUID,
 )
 async def create_task(item: Task, db: DBSession = Depends(get_db)):
-    return db.create_task(item)
+    if(db.user_exists_by_id(item.id_owner)):
+         return db.create_task(item)
+    raise HTTPException(
+            status_code=400,
+            detail='Invalid user id',
+        )  
+   
 
 
 @router.get(
